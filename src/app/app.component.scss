@@ -18,49 +18,57 @@
             background-color: #000000;
             color: #fff;
         }
-
-        .test-pane{
-
-            .suite-tree-invisible{
-                display: none;
-            }
-
-            .suites-tree{
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 1000%;
-                height: 100%;
-                ul, li{
-                    margin-top: 0;
-                    margin-bottom: 0;
-                    list-style-type: none;
+        .suites{
+            height: calc(60% - 64px);
+            border-bottom: #ddd 1px solid;
+            .test-pane{
+                border-right: #ddd 1px solid;
+                .suite-tree-invisible{
+                    display: none;
                 }
-
-                .mat-tree-node{
-                    border-bottom: 1px solid #d5d5d5;
-                }
-            }
-        }
-
-        .spec-pane{
-            overflow: scroll;
-            div{
-                width: 100%;
-                height: 100%;
-                margin: 10px;
-
-                [mat-header]{
-                    padding-left: 20px;
-                }
-
-                .spec-list{
-                    .screenshot-card{
-                        width: 400px;
+    
+                .suites-tree{
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 1000%;
+                    height: 100%;
+                    ul, li{
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        list-style-type: none;
+                    }
+    
+                    .mat-tree-node{
+                        border-bottom: 1px solid #d5d5d5;
                     }
                 }
-           }
+            }
+    
+            .spec-pane{
+                overflow: scroll;
+                div{
+                    width: 100%;
+                    height: 100%;
+                    margin: 10px;
+    
+                    [mat-header]{
+                        padding-left: 20px;
+                    }
+    
+                    .spec-list{
+                        .screenshot-card{
+                            width: 400px;
+                        }
+                    }
+               }
+            }
         }
+
+        .graph{
+            height: 40%;
+        }
+        
     }
 }
 [justify-space-between]{
