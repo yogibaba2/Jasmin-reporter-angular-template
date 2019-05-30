@@ -24,23 +24,45 @@ export class AppComponent implements AfterViewInit {
   public title = 'angular-html-report'; 
   public suiteObject = [];
   public selectedSuite;
-  public suiteChart = []; // This will hold our chart info
-  public specChart = [];
-  public expectChart = [];
+  public suiteChart: Chart = []; // This will hold our chart info
+  public specChart: Chart = [];
+  public expectChart: Chart = [];
+  public selectedView: string = 'test-details';
 
   constructor(private http: HttpClient) {
     this.nestedTreeControl = new NestedTreeControl<any>(this._getChildren);
     this.nestedDataSource = new MatTreeNestedDataSource();
     this.suiteObject = new getOutput();
+    console.log(this.suiteObject);
     this.dataChange.next(this.suiteObject['suites']);
     this.dataChange.subscribe(data => this.nestedDataSource.data = data);
+    //default selection of suite on page load
     this.selectedSuite = this.suiteObject['suites'] && this.suiteObject['suites'][0];
+
   }
 
   ngAfterViewInit(){
-    this.suiteChart = this.getChart('canvas-chart-suite', this.suiteObject['summary']['suites'], 'doughnut');
-    this.specChart = this.getChart('canvas-chart-spec', this.suiteObject['summary']['specs'], 'doughnut');
-    this.expectChart = this.getChart('canvas-chart-expect', this.suiteObject['summary']['expects'], 'doughnut');
+    this.initCharts();
+  }
+
+  setSelectedView = (view) => {
+    this.selectedView = view;
+    this.destroyCharts();
+    setTimeout(() => {
+      this.initCharts();
+    }, 100);
+  }
+
+  initCharts(){
+    this.suiteChart = this.getChart('canvas-chart-suite', this.suiteObject['summary']['suites'], 'doughnut', 'Suite View');
+    this.specChart = this.getChart('canvas-chart-spec', this.suiteObject['summary']['specs'], 'doughnut', 'Spec View');
+    this.expectChart = this.getChart('canvas-chart-expect', this.suiteObject['summary']['expects'], 'doughnut', 'Expect View');
+  }
+
+  destroyCharts(){
+    this.suiteChart.destroy();
+    this.specChart.destroy();
+    this.expectChart.destroy();
   }
 
   hasNestedChild = (_: number, nodeData: any) =>  nodeData._suites.length > 0;
@@ -48,10 +70,13 @@ export class AppComponent implements AfterViewInit {
   private _getChildren = (node: any) =>  node._suites;
 
   selectSuite = (node) => {
+    if(node.status == 'pending'){
+      node._specs = [];
+    }
     this.selectedSuite = node;
   }
 
-  getChart: Chart = (ele: string, data: any, type: string) =>{
+  getChart: Chart = (ele: string, data: any, type: string, chartTitle: string) =>{
     let _chart = {
       label: [],
       data: [],
@@ -62,30 +87,8 @@ export class AppComponent implements AfterViewInit {
       if( entry[0] != 'total' && entry[0] != 'defined'){
         _chart['label'].push(entry[0]);
         _chart['data'].push(entry[1]);
-
-        switch (entry[0]) {
-          case 'passed':
-            _chart['color'].push('#28a745');
-            break;
-          case 'failed':
-            _chart['color'].push('#dc3545');
-            break;
-          case 'disabled':
-            _chart['color'].push('#f3b601');
-            break;
-          case 'excluded':
-            _chart['color'].push('#f3b601');
-            break;
-          case 'pending':
-            _chart['color'].push('#146dce');
-            break;
-          default:
-            console.log('unknown status : setting white color');
-            //_chart['color'].push('#DDDDDD20');
-            break;
-        }
+        _chart['color'].push(this.getColorOfStatus(entry[0]));
       }
-
     });
     return new Chart(ele, {
       type: type,
@@ -95,16 +98,61 @@ export class AppComponent implements AfterViewInit {
               label: _chart.label,
               data: _chart.data,
               backgroundColor: _chart.color,
-              borderColor: _chart.color,
+              borderColor: '#fff',
               borderWidth: 1
           }]
       },
       options: {
+        title: {
+          display: false,
+          text: chartTitle
+        },
         legend: {
           position: 'right',
           labels: {usePointStyle: true}
-        }
+        },
+        tooltips: {
+          displayColors: false,
+          callbacks: {
+              label: function(tooltipItem, data) {
+                  return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+              }
+          }
+        },
+        responsive: true
       }
     });
+  }
+
+  getColorOfStatus(status: string){
+    switch (status) {
+      case 'passed':
+       return ('#28a745');
+      case 'finished':
+        return ('#28a745');
+      case 'failed':
+        return ('#dc3545');
+      case 'disabled':
+        return ('#f3b601');
+      case 'excluded':
+        return ('#f3b601');
+      case 'pending':
+        return ('#f3b601');
+      default:
+        console.log('unknown status : setting white color');
+        return ('#DDDDDD20');
+    }
+  }
+
+  getExpectCount(countType: string, specs: any): number{
+    let failed = 0, total = 0, passed = 0;
+    specs.forEach( spc => {
+      failed += spc['failedExpectations'].length;
+      passed += spc['passedExpectations'].length;
+    });
+
+    total = failed + passed ;
+
+    return (countType == 'total') ? total : ((countType == 'failed') ? failed : passed);
   }
 }

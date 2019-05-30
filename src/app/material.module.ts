@@ -8,11 +8,12 @@ import {  MatSidenavModule,
           MatListModule,
           MatTreeModule,
           MatExpansionModule,
-          MatCardModule} from '@angular/material';
+          MatCardModule,
+          MatTooltipModule} from '@angular/material';
 
 @NgModule({
-  imports: [MatCardModule, MatExpansionModule, MatSidenavModule, MatCheckboxModule, MatButtonModule, MatToolbarModule, MatIconModule, MatGridListModule, MatListModule, MatTreeModule],
-  exports: [MatCardModule, MatExpansionModule, MatSidenavModule, MatCheckboxModule, MatButtonModule, MatToolbarModule, MatIconModule, MatGridListModule, MatListModule, MatTreeModule]
+  imports: [MatTooltipModule, MatCardModule, MatExpansionModule, MatSidenavModule, MatCheckboxModule, MatButtonModule, MatToolbarModule, MatIconModule, MatGridListModule, MatListModule, MatTreeModule],
+  exports: [MatTooltipModule, MatCardModule, MatExpansionModule, MatSidenavModule, MatCheckboxModule, MatButtonModule, MatToolbarModule, MatIconModule, MatGridListModule, MatListModule, MatTreeModule]
 })
 
 export class MyOwnCustomMaterialModule { }
